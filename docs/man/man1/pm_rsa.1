@@ -1,0 +1,148 @@
+.\" Copyright (C) 2008 Pedro Fortuny and Rafael Casado
+.\" This file is part of nokey. 
+.\" See the file COPYING for information on usage and redistribution
+.\" of this file, and for a DISCLAIMER OF ALL WARRANTIES
+
+.TH PM_RSA 1 "October 2008" "Version 1.0" "Authentication"
+.SH NAME
+pm_rsa \- Poor man's RSA. Use RSA to transmit encrypted passwords,
+but \fBnot\fP to fight men in the middle.
+.SH SYNOPSIS
+
+.nf
+.B pm_rsa_server [\fIoptions\fP] [\fIfile\fP] [\fInumber\fP]
+.fi
+.SH DESCRIPTION
+
+\fBpm_rsa_server\fP is a utility which receives an hex message and decrypts
+it using RSA with PKCS-1 padding, by means of a private key. The message
+is supposedly the hex dump of the encryption of a plaintex using the
+corresponding public key (otherwise, it would be noise).
+
+The program is an attempt at providing 'more-than-plaintext'-safe
+authentication on the Internet. It is intended to be used wrapped up
+by a CGI server (think of a login CGI script), communicating only
+with the wrapper, because at the end of the process, the server
+emits the cleartext message.
+
+It is obvious that some web applications, like blogs, require secret
+keys, but not necessarily secrecy of the \fBcomplete\fP communication
+channel (as SSL and TLS provide), because all of the content on those
+applications is intended to be public.
+
+Users of webmail servers may also be eager to trade non-privacy of
+their mail (letting it go through the web on the clear) for secure
+authentication (safe encryption of the login protocol). Actually, they
+are trading for nothing nowadays in most cases.
+
+.SH THE PROTOCOL
+
+The server \fBpm_rsa_server\fP expects a message of the appropriate size
+as an hex string, and returns the decryption of that message using the
+specified private key (or the default \fB/etc/pm_1024\fP). This key has to
+be stored in the same computer running the program.
+
+The received message is (should be) the hex dump of the encryption of a 
+PKCS-1 padded cleartext using the public key (which the user, application,
+web browser or whatever should have available).
+
+.SH OPTIONS
+
+\fBpm_rsa_server\fP supports the following options:
+
+.TP 15
+.B -k \fIfilename\fP
+Specify the location of the private key (default \fB/etc/pm_1024\fP).
+.TP
+.B -s
+Run as a server (on LOCALHOST, will not listen on other interface).
+.TP
+.B -P \fIport\fP
+If run as a server, listen on port \fIport\fP. Otherwise, useless.
+.TP
+.B -d
+If run as a server, dump each hex message and its decryption to stderr,
+otherwise useless.
+
+.SH OUTPUT
+On success, \fBpm_rsa_server\fP outputs the decrypted message, if run
+as a standalone application.
+If run as a server, it awaits for connections and when one is accepted,
+it reads from the client the hex dump of the encrypted message and
+returns the decrypted text, closing the connection afterwards. 
+If run in \fIdemo\fP mode (see OPTIONS), it also sends to stderr on the 
+local server a pair of messages with the hex dump and the cleartext.
+
+.SH DEMO CLIENT
+The application includes a program \fBpm_rsa_client\fP to test the server
+and its functioning. 
+
+.SH EXAMPLES
+To try the standalone server, issue the following commands (assumming
+you are at the distribution directory, ./pm_1024 is the 'private' key
+included in the distribution, which you \fBshould never use\fP in
+production systems).
+
+$ u=`./pm_rsa_client 'my password'
+$ ./pm_rsa_server -k ./pm_1024 $u
+my password
+
+To try the socket server, create the encrypted message
+
+$ u=`./pm_rsa_client 'my password'
+
+start the server:
+
+$ ./pm_rsa_server -k ./pm_1024 -s
+
+and connect to it sending it the encrypted text
+
+$ echo $u | nc localhost 16387
+
+the password should appear before the prompt. To kill the server, issue
+
+$ killall -9 pm_rsa_server
+
+
+.SH SECURITY
+
+This program does only what is hereby specified. In order to provide
+no-reply mechanisms, the wrapper function should create single-use
+keys or any other type of key to be padded after the message to be
+encrypted. This is not this program's issue because each vendor has
+its own concerns. In any case, recall that once a message is encrypted with a
+public key, it is usable \fBas is\fP at any time. The no-reply mechanism
+is not part of RSA per se, it is part of the security environment.
+
+.SH EXIT STATUS
+
+The exit status is 0 on successful completion and non-zero otherwise.
+
+.SH BUGS
+
+There are no known bugs up to date.
+
+.SH VERSION
+
+1.0
+
+.SH AUTHORS
+
+Pedro Fortuny Ayuso <info at pfortuny.net>
+Rafael Casado Sanchez <rafacas at gmail.com>
+
+.SH COPYRIGHT
+
+Copyright (C) 2008 Pedro Fortuny Ayuso and Rafael Casado Sanchez
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHORS DISCLAIM ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL ANY OF THE AUTHORS BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.

@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/ 
+xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html> 
+<head>
+<meta base="http://pfortuny.net/" />
+<title>Poor Man's RSA Test</title> 
+<script src="/pmrsa/pmrsa.js" type="text/javascript"></script>
+<script src="/pmrsa/jsbn.js" type="text/javascript"></script>
+<script src="/pmrsa/jsbn2.js" type="text/javascript"></script>
+<script src="/pmrsa/prng4.js" type="text/javascript"></script>
+<script src="/pmrsa/rng.js" type="text/javascript"></script>
+<script src="/pmrsa/rsa.js" type="text/javascript"></script>
+<script src="/pmrsa/rsa2.js" type="text/javascript"></script>
+
+<link rel='stylesheet' href='/pmrsa/css/pmrsa.css' type='text/css' media='all' />
+
+</head>
+<!-- For best random results -->
+<body onClick='rng_seed_time();' onKeyPress='rng_seed_time();'>
+<!-- TODO -->
+<!-- The key must be read from somewhere. This one does not look OK to me (it is not rsa1.2048.pub, -->
+<!-- that is for sure. Possibly use rsa2hex to get the hex value from the PEM file. Or not, it -->
+<!-- is up to us to decide. -->
+<!-- Two new fields are needed:-->
+<!-- A challenge: challenge -->
+<!-- A filename (where the challenge is stored on the server side) -->
+<!-- These have to be concatenated to the password before encryption. -->
+<!-- Both have specified lengths: CHALLENGE_LENGTH, TEMPFILE_LENGTH, see pm_rsa.h -->
+<!-- I have tried to include everything in pm_rsa.js as well. -->
+<input type="hidden" name="tempfile" value="file_name1">
+<input type="hidden" name="challenge" value="the_challe">
+<input type="hidden" name="publickey" value="EC89D38C5E24D6E236D2B763097EB480F7C257B125666997F30285AFF0F7F187EBACE935F8FE6F9CE679396BB36C581DBA7E87D965C613D5A0BC03C50284DE54BE0F483FD5E690C8B1C14D3A9091B57DF6AA5C920B52C4AFF51F81B0B00FE0C487BD870FCA04B41EC97B9396A4CD28A68B304F9F032FDBAB4D48F8479D0994E27FED785189094EEAAF8604DC8264DF56FC0ECA174B778DADD299C6353352AFC84A9D1EFB3E81513E4680C1A085E23C32BB6E4888F5C10CB6CB2BA28F705D93A961B6D6D4EE70054CA7AC4392A5363EB9F691252964754915E98BBB896DB9913956893AEDFB545DC65D64874244C53764AC0AD4CCBE926311E4840F9D574CDE33" />
+<!-- hex exponent -->
+<input type="hidden" name="exponent" value="23" />
+<!--input type="hidden" name="publickey" value="EE0ED48E93D03936D20CAFA97305B793FA27CDE16B990B30C6A135EDB97895AA9D1CEB2C29634CFB5392F4191AE00DB961A48CF2DC27AD676956FAB4CAE738F0D90DCC50012162AB2A1653D0EB469BEF96E50BE23BFB91152E956BC20979DD1DF29C18AFBEFF56073720D9795D6D6EE846B6FEC2749D7EA6098671C913159049"/ -->
+<div id="login">
+<h2>Poor Man's RSA concept test</h2>
+<form name="loginform" id="loginform" method="post">
+  <p>
+    <label>Username<br />
+      <input type="text" name="user" id="user_login" class="input" value="" size="20" tabindex="10" />
+    </label>
+  </p>
+  <p>
+    <label>Password<br />
+      <input type="password" name="pwd" id="user_pass" class="input" value="" size="20" tabindex="20" />
+    </label>
+  </p>
+  <p class="submit">
+    <input type="button" value="Log In" tabindex="100" onclick="safe_login()" />
+  </p>
+</form>
+</div>
+<div class="message">
+<p>Encrypted password: </p>
+<textarea cols="90" rows="4" id="encrypted_pass" type="text" readonly=true></textarea>
+</div>
+
+<div class="message">Password (AJAX received): <span class="answer" id="pass"></span></div>
+<div class="message">Filename (ibid): <span class="answer" id="filename"></span></div>
+<div class="message">Challenge (ibid): <span class="answer" id="challenge"></span></div>
+
+
+</body> 
+</html>
+
